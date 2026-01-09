@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DILIP DC ⚡ ULTRA SYSTEM</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+/* --- CORE & VARS --- */
+:root {
+    --neon-blue: #00f3ff;
+    --neon-purple: #bc13fe;
+    --dark-bg: #030303;
+    --glass: rgba(10, 20, 30, 0.6);
+    --border-color: rgba(0, 243, 255, 0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+
+html, body {
+    height: 100%;
+    font-family: 'Rajdhani', sans-serif;
+    background-color: var(--dark-bg);
+    color: #fff;
+    overflow: hidden;
+}
+
+/* --- CRT MONITOR OVERLAY --- */
+.scanlines {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* --- BACKGROUND --- */
+#neural-canvas {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0;
+}
+
+/* --- SCREENS --- */
+.screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    overflow-y: auto;
+    perspective: 1000px; /* For 3D Tilt */
+}
+.screen.active { display: flex; opacity: 1; }
+
+/* --- TYPOGRAPHY --- */
+h1, h2, h3 {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Glitch Title */
+.glitch {
+    font-size: 40px;
+    font-weight: 900;
+    position: relative;
+    text-shadow: 2px 2px var(--neon-purple), -2px -2px var(--neon-blue);
+    animation: glitchAnim 1s infinite alternate;
+}
+@keyframes glitchAnim {
+    0% { transform: skew(0deg); }
+    20% { transform: skew(-2deg); }
+    40% { transform: skew(2deg); }
+    60% { transform: skew(0deg); }
+    80% { transform: skew(1deg); }
+    100% { transform: skew(0deg); }
+}
+
+.sub-text {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-blue);
+    font-size: 14px;
+    margin-top: 10px;
+    opacity: 0.9;
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+/* --- BUTTONS --- */
+.cyber-btn {
+    margin-top: 30px;
+    padding: 16px 42px;
+    background: rgba(0, 243, 255, 0.05);
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    position: relative;
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+}
+.cyber-btn:hover {
+    background: var(--neon-blue);
+    color: #000;
+    box-shadow: 0 0 30px var(--neon-blue);
+    transform: translateY(-2px);
+}
+.cyber-btn:active { transform: scale(0.95); }
+
+/* --- TERMINAL LOADER --- */
+.terminal-box {
+    width: 90%; max-width: 450px;
+    background: rgba(0,0,0,0.85);
+    border: 1px solid var(--neon-blue);
+    padding: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #0f0;
+    height: 220px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+    position: relative;
+}
+/* Scanning line inside terminal */
+.terminal-box::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 5px;
+    background: rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 10px #0f0;
+    animation: scanDown 2s linear infinite;
+    opacity: 0.5;
+}
+
+.loading-bar-container {
+    width: 100%; height: 6px;
+    background: #222; margin-top: 15px;
+    border: 1px solid #444;
+}
+.loading-bar {
+    height: 100%; width: 0%;
+    background: var(--neon-blue);
+    box-shadow: 0 0 15px var(--neon-blue);
+    transition: width 0.1s linear;
+}
+
+/* --- 3D TILT CARDS --- */
+.grid-container {
+    display: grid; grid-template-columns: 1fr; gap: 15px;
+    width: 100%; max-width: 400px;
+}
+.tilt-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border-left: 2px solid var(--neon-purple);
+    border-right: 1px solid rgba(255,255,255,0.1);
+    padding: 18px;
+    backdrop-filter: blur(4px);
+    transition: transform 0.1s ease-out; /* Smooth tilt */
+    transform-style: preserve-3d;
+    position: relative;
+    overflow: hidden;
+}
+/* Hover scan effect */
+.tilt-card::before {
+    content: ''; position: absolute; top:0; left:-100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: skewX(-25deg);
+    transition: 0.5s;
+}
+.tilt-card:hover::before { left: 150%; transition: 0.7s; }
+
+.tilt-card h3 { color: #fff; font-size: 18px; margin-bottom: 5px; transform: translateZ(20px); }
+.tilt-card p { color: #aaa; font-size: 14px; transform: translateZ(10px); }
+
+/* --- PHOTO HOLOGRAPHS --- */
+.photo-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 12px; width: 100%; max-width: 420px;
+}
+.photo-frame:nth-child(5) { grid-column: span 2; aspect-ratio: 16/9; }
+
+.photo-frame {
+    position: relative; aspect-ratio: 1/1;
+    border: 1px solid var(--neon-blue);
+    background: #000;
+    overflow: hidden;
+    clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+    transform: scale(0.8); opacity: 0;
+    animation: popIn 0.5s ease forwards;
+    transition: transform 0.2s;
+}
+/* Staggered animation */
+.photo-frame:nth-child(1) { animation-delay: 0.1s; }
+.photo-frame:nth-child(2) { animation-delay: 0.2s; }
+.photo-frame:nth-child(3) { animation-delay: 0.3s; }
+.photo-frame:nth-child(4) { animation-delay: 0.4s; }
+.photo-frame:nth-child(5) { animation-delay: 0.5s; }
+
+.photo-frame img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: grayscale(80%) contrast(1.2) brightness(0.8);
+    transition: 0.5s;
+}
+.photo-frame:hover img {
+    filter: grayscale(0%) contrast(1.1) brightness(1);
+}
+.photo-frame:hover {
+    box-shadow: 0 0 25px var(--neon-purple);
+    z-index: 10;
+    transform: scale(1.05) !important;
+}
+
+/* Laser Scanner on Photos */
+.scanner-laser {
+    position: absolute; top:0; left:0; width:100%; height:2px;
+    background: #fff;
+    box-shadow: 0 0 10px #fff, 0 0 20px var(--neon-blue);
+    animation: scanDown 3s linear infinite;
+    z-index: 5;
+    opacity: 0.7;
+}
+
+/* --- MANIFESTO --- */
+.manifesto-box {
+    background: rgba(0,0,0,0.7);
+    border: 1px solid #333;
+    border-top: 3px solid var(--neon-blue);
+    padding: 25px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.highlight { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
+
+/* --- KEYFRAMES --- */
+@keyframes scanDown {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+@keyframes popIn { to { transform: scale(1); opacity: 1; } }
+
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+
+<canvas id="neural-canvas"></canvas>
+<audio id="bgm" src="music.mp3" loop></audio>
+
+<div class="screen active" id="s1">
+    <div class="glitch" data-text="SYSTEM_READY">SYSTEM READY</div>
+    <div class="sub-text">IDENTITY: DILIP DC</div>
+    <button class="cyber-btn" onclick="startSystem()">INITIALIZE ⚡</button>
+</div>
+
+<div class="screen" id="s2">
+    <div class="terminal-box" id="terminalLog"></div>
+    <div class="loading-bar-container">
+        <div class="loading-bar" id="loadBar"></div>
+    </div>
+    <div class="sub-text" style="margin-top:10px">
+        DECRYPTING... <span id="percent">0%</span>
+    </div>
+</div>
+
+<div class="screen" id="s3">
+    <h1 style="font-size: 50px; line-height:1; margin-bottom:10px;">DILIP<br><span style="color:var(--neon-purple)">DC</span></h1>
+    <div class="sub-text" id="decodeText" style="min-height:20px; color:#fff;"></div>
+    
+    <div style="margin-top:30px; display:flex; gap:15px; align-items:center;">
+        <span style="font-size:10px; color:#555;">SECURE CONNECTION</span>
+        <div style="width:8px; height:8px; background:#0f0; border-radius:50%; box-shadow:0 0 10px #0f0; animation:blink 1s infinite"></div>
+    </div>
+    <button class="cyber-btn" onclick="nextScreen(4)">ACCESS MODULES</button>
+</div>
+
+<div class="screen" id="s4">
+    <h2 class="scramble-target" data-value="CORE MODULES" style="margin-bottom:20px; color:var(--neon-blue)">CORE MODULES</h2>
+    
+    <div class="grid-container">
+        <div class="tilt-card">
+            <h3>AI & Cyber Systems</h3>
+            <p>Architecting intelligent neural frameworks.</p>
+        </div>
+        <div class="tilt-card">
+            <h3>Game Engines</h3>
+            <p>Designing immersive digital realities.</p>
+        </div>
+        <div class="tilt-card">
+            <h3>Digital Innovation</h3>
+            <p>Building beyond known limits.</p>
+        </div>
+        <div class="tilt-card">
+            <h3>Strategic Vision</h3>
+            <p>Long-term mastery over technology.</p>
+        </div>
+    </div>
+    <button class="cyber-btn" style="margin-top:20px" onclick="nextScreen(5)">LOAD VISUALS</button>
+</div>
+
+<div class="screen" id="s5">
+    <h2 class="scramble-target" data-value="VISUAL DATABASE" style="margin-bottom:20px; color:var(--neon-purple)">VISUAL DATABASE</h2>
+    
+    <div class="photo-grid">
+        <div class="photo-frame">
+            <div class="scanner-laser"></div>
+            <img src="photo1.jpg">
+        </div>
+        <div class="photo-frame">
+            <div class="scanner-laser" style="animation-delay:0.5s"></div>
+            <img src="photo2.jpg">
+        </div>
+        <div class="photo-frame">
+            <div class="scanner-laser" style="animation-delay:1s"></div>
+            <img src="photo3.jpg">
+        </div>
+        <div class="photo-frame">
+            <div class="scanner-laser" style="animation-delay:1.5s"></div>
+            <img src="photo4.jpg">
+        </div>
+        <div class="photo-frame">
+            <div class="scanner-laser" style="animation-delay:2s"></div>
+            <img src="photo5.jpg">
+        </div>
+    </div>
+    <button class="cyber-btn" style="margin-top:25px" onclick="nextScreen(6)">EXECUTE VISION</button>
+</div>
+
+<div class="screen" id="s6">
+    <h2 style="margin-bottom:20px;">SYSTEM OVERRIDE</h2>
+    <div class="manifesto-box">
+        <p style="font-size:15px; line-height:1.7;">
+            <span class="highlight">I am Intelligent. I am Powerful. I have Vision.</span><br><br>
+            I am Dilip DC — a technology-driven creator focused on building the future.<br>
+            I don’t follow limits — <span class="highlight">I design beyond them.</span><br><br>
+            Every day I rise higher to become smarter, stronger, and unstoppable.<br>
+            <span style="font-size:20px; color:var(--neon-purple); font-weight:900; display:block; margin-top:10px;">I BUILD IT. ⚡</span>
+        </p>
+    </div>
+    <div style="margin-top:30px; font-size:12px; color:#444;">ID: DILIP_DC_2026 // STATUS: ONLINE</div>
+</div>
+
+<script>
+/* --- 1. NEURAL PARTICLE BACKGROUND --- */
+const canvas = document.getElementById('neural-canvas');
+const ctx = canvas.getContext('2d');
+let w, h, particles = [];
+
+function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * w; this.y = Math.random() * h;
+        this.vx = (Math.random()-.5)*1.5; this.vy = (Math.random()-.5)*1.5;
+        this.color = Math.random()>.5 ? '#00f3ff' : '#bc13fe';
+    }
+    update() {
+        this.x+=this.vx; this.y+=this.vy;
+        if(this.x<0||this.x>w) this.vx*=-1;
+        if(this.y<0||this.y>h) this.vy*=-1;
+    }
+    draw() {
+        ctx.beginPath(); ctx.arc(this.x,this.y,1.5,0,Math.PI*2);
+        ctx.fillStyle=this.color; ctx.fill();
+    }
+}
+function initP(){ particles=[]; for(let i=0;i<(w<600?50:100);i++) particles.push(new Particle()); }
+function animP(){
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p=>{
+        p.update(); p.draw();
+        particles.forEach(p2=>{
+            let dx=p.x-p2.x, dy=p.y-p2.y, d=Math.sqrt(dx*dx+dy*dy);
+            if(d<100){
+                ctx.beginPath(); ctx.strokeStyle=`rgba(0,243,255,${1-d/100})`;
+                ctx.lineWidth=0.4; ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+            }
+        });
+    });
+    requestAnimationFrame(animP);
+}
+initP(); animP();
+
+/* --- 2. 3D TILT EFFECT LOGIC --- */
+document.querySelectorAll('.tilt-card, .photo-frame').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left; 
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = ((y - centerY) / centerY) * -10; // Max 10deg tilt
+        const rotateY = ((x - centerX) / centerX) * 10;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    });
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+    });
+});
+
+/* --- 3. SYSTEM LOGIC --- */
+const bgm = document.getElementById("bgm");
+
+function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('s' + id).classList.add('active');
+    
+    // Trigger Text Decoder on new screen headers
+    if(id === 3) decodeEffect("INTELLIGENT. POWERFUL. VISIONARY.", "decodeText");
+    if(id === 4) scrambleHeader(document.querySelector('#s4 h2'));
+    if(id === 5) scrambleHeader(document.querySelector('#s5 h2'));
+}
+
+function startSystem() {
+    try { bgm.play(); } catch(e){}
+    show(2);
+    
+    const term = document.getElementById('terminalLog');
+    const logs = [
+        "INITIALIZING CORE...",
+        "BYPASSING SECURITY...",
+        "LOADING NEURAL NETS...",
+        "OPTIMIZING GRAPHICS...",
+        "ACCESS GRANTED."
+    ];
+    let p = 0;
+    
+    const t = setInterval(()=>{
+        p += Math.random()*4;
+        if(p>100) p=100;
+        document.getElementById('loadBar').style.width = p+"%";
+        document.getElementById('percent').innerText = Math.floor(p)+"%";
+        
+        if(p > 20 && logs.length > 4) term.innerHTML += `> ${logs.shift()}<br>`;
+        if(p > 40 && logs.length > 3) term.innerHTML += `> ${logs.shift()}<br>`;
+        if(p > 60 && logs.length > 2) term.innerHTML += `> ${logs.shift()}<br>`;
+        if(p > 80 && logs.length > 1) term.innerHTML += `> ${logs.shift()}<br>`;
+        if(p > 98 && logs.length > 0) term.innerHTML += `> ${logs.shift()}<br>`;
+        
+        term.scrollTop = term.scrollHeight;
+
+        if(p===100){
+            clearInterval(t);
+            setTimeout(()=>show(3), 600);
+        }
+    }, 80);
+}
+
+function nextScreen(n) { show(n); }
+
+/* --- 4. TEXT DECODER / SCRAMBLER --- */
+function decodeEffect(text, elId) {
+    const el = document.getElementById(elId);
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let iterations = 0;
+    const interval = setInterval(() => {
+        el.innerText = text.split("").map((letter, index) => {
+            if(index < iterations) return letter;
+            return chars[Math.floor(Math.random() * 36)];
+        }).join("");
+        
+        if(iterations >= text.length) clearInterval(interval);
+        iterations += 1/2; 
+    }, 30);
+}
+
+function scrambleHeader(el) {
+    const original = el.getAttribute('data-value');
+    const chars = "!@#$%^&*()_+-=[]{}|;':,./<>?";
+    let i = 0;
+    const t = setInterval(() => {
+        el.innerText = original.split("").map((l, idx) => {
+            if(idx < i) return l;
+            return chars[Math.floor(Math.random() * chars.length)];
+        }).join("");
+        if(i >= original.length) clearInterval(t);
+        i += 1/3;
+    }, 50);
+}
+</script>
+</body>
+</html>
